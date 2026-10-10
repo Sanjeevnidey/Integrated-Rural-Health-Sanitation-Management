@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${camp.id == null} ? 'New camp' : 'Edit camp'">Camp</title>
+  <link rel="stylesheet" th:href="@{/camps/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main>
+  <h1 th:text="${camp.id == null} ? 'New health camp' : 'Edit health camp'">Camp</h1>
+
+  <!-- th:object binds the form to the "camp" objec, th:field binds each input to one field -->
+  <form class="card" th:action="@{/camps/save}" th:object="${camp}" method="post">
+    <input type="hidden" th:field="*{id}">   
+
+    <div class="form-grid">
+      <label>Camp name
+        <input type="text" th:field="*{name}">
+        <span class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+      </label>
+
+      <label>Camp type
+        <select th:field="*{campType}">
+          <option value="">-- choose --</option>
+          <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
+        </select>
+        <span class="error" th:if="${#fields.hasErrors('campType')}" th:errors="*{campType}"></span>
+      </label>
+
+      <label>Village
+        <input type="text" th:field="*{village}">
+        <span class="error" th:if="${#fields.hasErrors('village')}" th:errors="*{village}"></span>
+      </label>
+
+      <label>Venue
+        <input type="text" th:field="*{venue}">
+        <span class="error" th:if="${#fields.hasErrors('venue')}" th:errors="*{venue}"></span>
+      </label>
+
+      <label>Camp date
+        <input type="date" th:field="*{campDate}">
+        <span class="error" th:if="${#fields.hasErrors('campDate')}" th:errors="*{campDate}"></span>
+      </label>
+
+      <label>Start time <input type="time" th:field="*{startTime}"></label>
+      <label>End time <input type="time" th:field="*{endTime}"></label>
+      <label>Organising centre ID <input type="number" th:field="*{centreId}"></label>
+      <label>Target beneficiaries <input type="number" th:field="*{targetCount}"></label>
+
+      <label>Status
+        <select th:field="*{status}">
+          <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+        </select>
+      </label>
+    </div>
+
+    <p>
+      <button class="btn" type="submit">Save camp</button>
+      <a class="btn secondary" th:href="@{/camps}">Cancel</a>
+    </p>
+  </form>
+</main>
+</body>
+</html>
