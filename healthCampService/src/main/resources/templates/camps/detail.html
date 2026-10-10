@@ -6,7 +6,7 @@
   <link rel="stylesheet" th:href="@{/camps/css/style.css}">
 </head>
 <body>
-<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/navbar :: navbar}"></div> 
 <main>
   <!-- One-time messages from the redirect -->
   <div class="alert success" th:if="${message}" th:text="${message}"></div>

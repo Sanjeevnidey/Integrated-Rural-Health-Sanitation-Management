@@ -6,7 +6,7 @@
   <link rel="stylesheet" th:href="@{/camps/css/style.css}">
 </head>
 <body>
-<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 <main>
   <h1>Record screening: <span th:text="${beneficiary.residentName}"></span></h1>
   <p th:text="'Camp: ' + ${beneficiary.camp.name} + ' · Village: ' + ${beneficiary.village}"></p>

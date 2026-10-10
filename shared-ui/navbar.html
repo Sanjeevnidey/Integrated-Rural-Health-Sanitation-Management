@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Shared navbar: every service includes it with th:replace="~{fragments/navbar :: navbar}" -->
+<!-- Links start with "/" so every click goes through the gateway on 8080 -->
+<nav th:fragment="navbar" class="navbar">
+  <a class="brand" href="/dashboard">Rural Health &amp; Sanitation</a>
+  <a href="/dashboard">Dashboard</a>
+  <a href="/residents">Residents</a>
+  <a href="/centres">Health Centres</a>
+  <a href="/appointments">Appointments</a>
+  <a href="/medicines">Medicines</a>
+  <a href="/camps">Health Camps</a>
+  <a href="/sanitation">Sanitation</a>
+  <a href="/water">Water</a>
+</nav>
+</body>
+</html>
