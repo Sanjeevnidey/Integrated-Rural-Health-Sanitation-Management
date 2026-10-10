@@ -11,6 +11,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes; // One-time messages after a redirect
 
+import com.irhsm.healthCampService.client.ResidentClient;
+import com.irhsm.healthCampService.dto.ResidentDto;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
+
 @Controller                                   
 @RequestMapping("/camps")                     // All URLs here start with /camps
 @RequiredArgsConstructor                      // Injects the two services below through the constructor
@@ -18,6 +23,7 @@ public class CampPageController {
 
     private final CampService campService;            //Camps, staff, beneficiaries
     private final ScreeningService screeningService;  // Screenings + the follow-up rule
+    private final ResidentClient residentClient;      
 
     //CAMP LIST
     // GET /camps?q=...&village=...&status=...
@@ -92,19 +98,39 @@ public class CampPageController {
         return "redirect:/camps/" + id;
     }
 
-    // POST/camps/5/beneficiaries - register a resident
+    // POST /camps/5/beneficiaries -> look up the resident in the Resident service, then register
     @PostMapping("/{id}/beneficiaries")
     public String registerBeneficiary(@PathVariable Long id,
                                       @RequestParam Long residentId,
-                                      @RequestParam String residentName,
-                                      @RequestParam String village,
+                                      @RequestParam(required = false) String residentName, 
+                                      @RequestParam(required = false) String village,      
                                       @RequestParam(required = false) Integer age,
                                       @RequestParam(required = false) String gender,
                                       RedirectAttributes flash) {
+        String source;  // For the message, where data came from
+        try {
+            ResidentDto r = residentClient.getResident(residentId); // REST call to port 8081
+            residentName = r.name();                                  
+            village = r.village();
+            age = r.age();
+            gender = r.gender();
+            source = "details from Resident service";
+        } catch (HttpClientErrorException.NotFound e) { // 404: no such resident
+            flash.addFlashAttribute("error", "Resident " + residentId + " not found in the Resident service");
+            return "redirect:/camps/" + id;
+        } catch (RestClientException e) {  // Service down or unreachable
+            if (residentName == null || residentName.isBlank()) { 
+                flash.addFlashAttribute("error",
+                        "Resident service (port 8081) is unavailable. Type the name and village to register manually.");
+                return "redirect:/camps/" + id;
+            }
+            source = "entered manually, Resident service unavailable";
+        }
+
         try {
             campService.registerBeneficiary(id, residentId, residentName, village, age, gender);
-            flash.addFlashAttribute("message", residentName + " registered");
-        } catch (IllegalStateException e) {                           // Already registered
+            flash.addFlashAttribute("message", residentName + " registered (" + source + ")");
+        } catch (IllegalStateException e) {                              // Already registered for this camp
             flash.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/camps/" + id;
