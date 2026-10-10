@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Follow-ups</title>
+  <link rel="stylesheet" th:href="@{/camps/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main>
+  <div class="alert success" th:if="${message}" th:text="${message}"></div>
+
+  <div class="head">
+    <h1>Follow-ups</h1>
+    <a class="btn secondary" th:href="@{/camps}">Back to camps</a>
+  </div>
+
+  <form class="card filters" th:action="@{/camps/followups}" method="get">
+    <select name="status">
+      <option value="">All statuses</option>
+      <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${s == status}"></option>
+    </select>
+    <button class="btn" type="submit">Filter</button>
+  </form>
+
+  <table>
+    <tr><th>Resident</th><th>Village</th><th>Finding</th><th>Action</th><th>Priority</th>
+        <th>Due</th><th>Status</th><th>Update</th></tr>
+    <!-- Overdue = still PENDING and the due date has passed-->
+    <tr th:each="f : ${followUps}"
+        th:classappend="${f.status.name() == 'PENDING' and f.dueDate.isBefore(today)} ? 'overdue'">
+      <td th:text="${f.residentName}"></td>
+      <td th:text="${f.village}"></td>
+      <td>
+        <span th:text="${f.screening.screeningType} + ' ' + ${f.screening.reading}"></span>
+        <span class="badge" th:classappend="${f.screening.result}" th:text="${f.screening.result}"></span>
+      </td>
+      <td th:text="${f.action}"></td>
+      <td><span class="badge" th:classappend="${f.priority}" th:text="${f.priority}"></span></td>
+      <td>
+        <span th:text="${#temporals.format(f.dueDate, 'dd MMM')}"></span>
+        <b th:if="${f.status.name() == 'PENDING' and f.dueDate.isBefore(today)}" style="color:#b42318"> overdue</b>
+      </td>
+      <td><span class="badge" th:classappend="${f.status}" th:text="${f.status}"></span></td>
+      <td>
+        <form th:action="@{/camps/followups/{id}/status(id=${f.id})}" method="post" class="filters">
+          <select name="status">
+            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${s == f.status}"></option>
+          </select>
+          <input type="text" name="outcome" th:value="${f.outcome}" placeholder="Outcome">
+          <button class="btn" type="submit">Save</button>
+        </form>
+      </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(followUps)}"><td colspan="8">No follow-ups.</td></tr>
+  </table>
+</main>
+</body>
+</html>

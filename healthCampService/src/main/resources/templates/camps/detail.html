@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${camp.name}">Camp</title>
+  <link rel="stylesheet" th:href="@{/camps/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main>
+  <!-- One-time messages from the redirect -->
+  <div class="alert success" th:if="${message}" th:text="${message}"></div>
+  <div class="alert error" th:if="${error}" th:text="${error}"></div>
+
+  <div class="head">
+    <h1><span th:text="${camp.name}">Camp</span>
+        <span class="badge" th:classappend="${camp.status}" th:text="${camp.status}"></span></h1>
+    <div>
+      <a class="btn secondary" th:href="@{/camps}">Back</a>
+      <a class="btn" th:href="@{/camps/{id}/edit(id=${camp.id})}">Edit camp</a>
+    </div>
+  </div>
+
+  <!-- Camp information -->
+  <div class="card info-grid">
+    <div><b>Type</b><span th:text="${camp.campType}"></span></div>
+    <div><b>Village</b><span th:text="${camp.village}"></span></div>
+    <div><b>Venue</b><span th:text="${camp.venue}"></span></div>
+    <div><b>Date</b><span th:text="${#temporals.format(camp.campDate, 'dd MMM yyyy')}"></span></div>
+    <div><b>Time</b><span th:text="${camp.startTime} + ' - ' + ${camp.endTime}"></span></div>
+    <div><b>Centre ID</b><span th:text="${camp.centreId}"></span></div>
+    <div><b>Registered / target</b><span th:text="${#lists.size(beneficiaries)} + ' / ' + ${camp.targetCount}"></span></div>
+  </div>
+
+  <!-- Staff -->
+  <div class="card">
+    <h2>Staff on duty</h2>
+    <table>
+      <tr><th>Worker ID</th><th>Name</th><th>Role</th><th>Duty</th></tr>
+      <tr th:each="s : ${staff}">
+        <td th:text="${s.workerId}"></td><td th:text="${s.workerName}"></td>
+        <td th:text="${s.role}"></td><td th:text="${s.duty}"></td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(staff)}"><td colspan="4">No staff assigned yet.</td></tr>
+    </table>
+    <form class="inline-form" th:action="@{/camps/{id}/staff(id=${camp.id})}" method="post">
+      <input type="number" name="workerId" placeholder="Worker ID" required>
+      <input type="text" name="workerName" placeholder="Worker name" required>
+      <select name="role" required>
+        <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
+      </select>
+      <input type="text" name="duty" placeholder="Duty (e.g. BP station)">
+      <button class="btn" type="submit">Assign</button>
+    </form>
+  </div>
+
+  <!-- Beneficiaries -->
+  <div class="card">
+    <h2>Beneficiaries</h2>
+    <table>
+      <tr><th>Resident ID</th><th>Name</th><th>Village</th><th>Age</th><th>Gender</th><th>Attendance</th><th></th></tr>
+      <tr th:each="b : ${beneficiaries}">
+        <td th:text="${b.residentId}"></td><td th:text="${b.residentName}"></td>
+        <td th:text="${b.village}"></td><td th:text="${b.age}"></td><td th:text="${b.gender}"></td>
+        <td><span class="badge" th:classappend="${b.attendance}" th:text="${b.attendance}"></span></td>
+        <td><a th:href="@{/camps/beneficiaries/{bid}/screen(bid=${b.id})}">Record screening</a></td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(beneficiaries)}"><td colspan="7">No residents registered yet.</td></tr>
+    </table>
+    <form class="inline-form" th:action="@{/camps/{id}/beneficiaries(id=${camp.id})}" method="post">
+      <input type="number" name="residentId" placeholder="Resident ID" required>
+      <input type="text" name="residentName" placeholder="Name" required>
+      <input type="text" name="village" th:value="${camp.village}" placeholder="Village" required>
+      <input type="number" name="age" placeholder="Age">
+      <select name="gender"><option value="F">F</option><option value="M">M</option><option value="O">Other</option></select>
+      <button class="btn" type="submit">Register</button>
+    </form>
+  </div>
+
+  <!-- Screening results -->
+  <div class="card">
+    <h2>Screening results</h2>
+    <table>
+      <tr><th>Resident</th><th>Test</th><th>Reading</th><th>Result</th><th>By</th><th>Time</th></tr>
+      <tr th:each="s : ${screenings}">
+        <td th:text="${s.beneficiary.residentName}"></td>
+        <td th:text="${s.screeningType}"></td>
+        <td th:text="${s.reading}"></td>
+        <td><span class="badge" th:classappend="${s.result}" th:text="${s.result}"></span></td>
+        <td th:text="${s.screenedBy}"></td>
+        <td th:text="${#temporals.format(s.screenedAt, 'dd MMM, HH:mm')}"></td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(screenings)}"><td colspan="6">No screenings yet.</td></tr>
+    </table>
+    <p><a th:href="@{/camps/followups}">View follow-ups &rarr;</a></p>
+  </div>
+</main>
+</body>
+</html>

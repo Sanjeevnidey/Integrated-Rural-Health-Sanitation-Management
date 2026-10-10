@@ -11,4 +11,6 @@ public interface ScreeningRepository extends JpaRepository<Screening, Long> {
     List<Screening> findByBeneficiaryResidentId(Long residentId);
     long countByResultNot(ScreeningResult result);
 
+        List<Screening> findByBeneficiaryCampId(Long campId);   // All screenings of one camp (beneficiary.camp.id)
+
 }

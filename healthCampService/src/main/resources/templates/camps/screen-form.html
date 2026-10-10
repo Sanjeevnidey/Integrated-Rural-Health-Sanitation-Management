@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Record screening</title>
+  <link rel="stylesheet" th:href="@{/camps/css/style.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main>
+  <h1>Record screening: <span th:text="${beneficiary.residentName}"></span></h1>
+  <p th:text="'Camp: ' + ${beneficiary.camp.name} + ' · Village: ' + ${beneficiary.village}"></p>
+
+  <form class="card" th:action="@{/camps/beneficiaries/{bid}/screen(bid=${beneficiary.id})}"
+        th:object="${screening}" method="post">
+    <div class="form-grid">
+      <label>Test
+        <select th:field="*{screeningType}">
+          <option value="">-- choose --</option>
+          <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
+        </select>
+        <span class="error" th:if="${#fields.hasErrors('screeningType')}" th:errors="*{screeningType}"></span>
+      </label>
+      <label>Reading
+        <input type="text" th:field="*{reading}" placeholder="e.g. 152/96 mmHg">
+        <span class="error" th:if="${#fields.hasErrors('reading')}" th:errors="*{reading}"></span>
+      </label>
+      <label>Result
+        <select th:field="*{result}">
+          <option value="">-- choose --</option>
+          <option th:each="r : ${results}" th:value="${r}" th:text="${r}"></option>
+        </select>
+        <span class="error" th:if="${#fields.hasErrors('result')}" th:errors="*{result}"></span>
+      </label>
+      <label>Screened by <input type="text" th:field="*{screenedBy}"></label>
+      <label>Remarks <input type="text" th:field="*{remarks}"></label>
+    </div>
+    <p>
+      <button class="btn" type="submit">Save screening</button>
+      <a class="btn secondary" th:href="@{/camps/{id}(id=${beneficiary.camp.id})}">Cancel</a>
+    </p>
+    <p style="font-size:13px">ABNORMAL or CRITICAL results create a follow-up automatically.</p>
+  </form>
+</main>
+</body>
+</html>
