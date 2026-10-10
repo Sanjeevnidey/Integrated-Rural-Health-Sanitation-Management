@@ -26,7 +26,7 @@ public class FollowUp {
     private  Screening screening;
     
     private Long residentId;
-    private Long residentName;
+    private String residentName;
     private String village;
 
     @Enumerated(EnumType.STRING)
